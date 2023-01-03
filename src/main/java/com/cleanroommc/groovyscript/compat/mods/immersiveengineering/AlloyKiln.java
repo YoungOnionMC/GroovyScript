@@ -8,6 +8,8 @@ import com.cleanroommc.groovyscript.helper.ingredient.IngredientHelper;
 import com.cleanroommc.groovyscript.helper.SimpleObjectStream;
 import com.cleanroommc.groovyscript.registry.VirtualizedRegistry;
 import com.cleanroommc.groovyscript.api.GroovyLog;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +32,7 @@ public class AlloyKiln extends VirtualizedRegistry<AlloyRecipe> {
     public void onReload() {
         removeScripted().forEach(recipe -> AlloyRecipe.recipeList.removeIf(r -> r == recipe));
         AlloyRecipe.recipeList.addAll(restoreFromBackup());
+        
     }
 
     public void add(AlloyRecipe recipe) {
@@ -37,6 +40,8 @@ public class AlloyKiln extends VirtualizedRegistry<AlloyRecipe> {
             addScripted(recipe);
             AlloyRecipe.recipeList.add(recipe);
         }
+        Item air = Items.AIR;
+
     }
 
     public AlloyRecipe add(ItemStack output, IIngredient input0, IIngredient input1, int time) {
