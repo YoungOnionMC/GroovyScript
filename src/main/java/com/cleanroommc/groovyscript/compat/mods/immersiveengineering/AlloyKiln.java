@@ -19,7 +19,7 @@ import java.util.List;
 public class AlloyKiln extends VirtualizedRegistry<AlloyRecipe> {
 
     public AlloyKiln() {
-        super("AlloyKiln", "alloykiln");
+        super();
     }
 
     public RecipeBuilder recipeBuilder() {

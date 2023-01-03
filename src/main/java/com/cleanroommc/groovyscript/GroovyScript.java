@@ -2,17 +2,23 @@ package com.cleanroommc.groovyscript;
 
 import com.cleanroommc.groovyscript.brackets.BracketHandlerManager;
 import com.cleanroommc.groovyscript.command.GSCommand;
+import com.cleanroommc.groovyscript.compat.mods.ModSupport;
+import com.cleanroommc.groovyscript.compat.mods.thaumcraft.aspect.AspectItemStackExpansion;
+import com.cleanroommc.groovyscript.compat.mods.thaumcraft.warp.WarpItemStackExpansion;
 import com.cleanroommc.groovyscript.compat.vanilla.VanillaModule;
 import com.cleanroommc.groovyscript.helper.JsonHelper;
 import com.cleanroommc.groovyscript.network.NetworkHandler;
 import com.cleanroommc.groovyscript.registry.ReloadableRegistryManager;
+import com.cleanroommc.groovyscript.sandbox.ExpansionHelper;
 import com.cleanroommc.groovyscript.sandbox.GroovyDeobfuscationMapper;
 import com.cleanroommc.groovyscript.sandbox.GroovyScriptSandbox;
 import com.cleanroommc.groovyscript.sandbox.RunConfig;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -34,7 +40,7 @@ public class GroovyScript {
 
     public static final String ID = "groovyscript";
     public static final String NAME = "GroovyScript";
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "0.1.0";
 
     public static final Logger LOGGER = LogManager.getLogger(ID);
 
@@ -44,7 +50,7 @@ public class GroovyScript {
     private static GroovyScriptSandbox sandbox;
 
     @Mod.EventHandler
-    public void onPreInit(FMLPreInitializationEvent event) {
+    public void onConstruction(FMLConstructionEvent event) {
         NetworkHandler.init();
         GroovyDeobfuscationMapper.init();
         ReloadableRegistryManager.init();
@@ -58,18 +64,30 @@ public class GroovyScript {
         reloadRunConfig();
         BracketHandlerManager.init();
         VanillaModule.initializeBinding();
+        registerExpansions();
 
-        getSandbox().run("preInit");
+        getSandbox().run(GroovyScriptSandbox.LOADER_PRE_INIT);
+    }
+
+    @Mod.EventHandler
+    public void onPreInit(FMLPreInitializationEvent event) {
     }
 
     @Mod.EventHandler
     public void onPostInit(FMLPostInitializationEvent event) {
-        getSandbox().run("postInit");
+        getSandbox().run(GroovyScriptSandbox.LOADER_POST_INIT);
     }
 
     @Mod.EventHandler
     public void onServerLoad(FMLServerStartingEvent event) {
         event.registerServerCommand(new GSCommand());
+    }
+
+    private void registerExpansions() {
+        if (ModSupport.THAUMCRAFT.isLoaded()) {
+            ExpansionHelper.mixinClass(ItemStack.class, AspectItemStackExpansion.class);
+            ExpansionHelper.mixinClass(ItemStack.class, WarpItemStackExpansion.class);
+        }
     }
 
     @NotNull
