@@ -116,16 +116,34 @@ public class PureDaisy extends VirtualizedRegistry<RecipePureDaisy> {
         }
 
         public RecipeBuilder inputBlock(IBlockState inputBlock) {
+            if(this.inputFluidBlock != null || this.inputItem != null) {
+                GroovyLog.msg("Pure Daisy recipe already using fluid or item input")
+                        .warn()
+                        .post();
+                return this;
+            }
             inputBlockState = inputBlock;
             return this;
         }
 
         public RecipeBuilder inputFluidBlock(IFluidBlock inputBlock) {
+            if(this.inputBlockState != null || this.inputItem != null) {
+                GroovyLog.msg("Pure Daisy recipe already using block or item input")
+                        .warn()
+                        .post();
+                return this;
+            }
             inputFluidBlock = inputBlock;
             return this;
         }
 
         public RecipeBuilder inputItem(ItemStack item) {
+            if(this.inputBlockState != null || this.inputFluidBlock != null) {
+                GroovyLog.msg("Pure Daisy recipe already using fluid or block input")
+                        .warn()
+                        .post();
+                return this;
+            }
             inputItem = item;
             return this;
         }
@@ -142,7 +160,10 @@ public class PureDaisy extends VirtualizedRegistry<RecipePureDaisy> {
 
         @Override
         public void validate(GroovyLog.Msg msg) {
-            validateItems(msg, 1, 1, 1, 1);
+
+            msg.add(inputBlockState == null && inputFluidBlock == null && inputItem == null, () -> "Input cannot be null");
+            msg.add(outputState == null, () -> "output cannot be null");
+            validateItems(msg, inputItem != null ? 1 : 0, 1, 0, 1);
         }
 
         @Override
